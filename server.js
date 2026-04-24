@@ -39,9 +39,10 @@ app.get('/api/creations', async (req, res) => {
       return res.json(cache.creations.data);
     }
     const limit = req.query.limit || 20;
-    const data = await cultsQuery('{ creations(limit: ' + limit + ', nick: "' + CULTS_USER + '") { name url description likesCount viewsCount illustrations { imageUrl } tags } }');
-    cache.creations = { data: data, ts: now };
-    res.json(data);
+    const data = await cultsQuery('{ me { creations(limit: ' + limit + ') { name url description likesCount viewsCount illustrations { imageUrl } tags } } }');
+    const result = { data: { creations: data?.data?.me?.creations || [] } };
+    cache.creations = { data: result, ts: now };
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener disenos' });
   }
@@ -88,7 +89,7 @@ app.get('/health', (req, res) => {
 
 cron.schedule('*/30 * * * *', async () => {
   try {
-    const data = await cultsQuery('{ creations(limit: 20, nick: "' + CULTS_USER + '") { name url likesCount viewsCount illustrations { imageUrl } } }');
+    const data = await cultsQuery('{ me { creations(limit: 20) { name url likesCount viewsCount illustrations { imageUrl } } } }');
     cache.creations = { data: data, ts: Date.now() };
     console.log('Cache actualizado OK');
   } catch (e) {
