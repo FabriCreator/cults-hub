@@ -39,7 +39,7 @@ app.get('/api/creations', async (req, res) => {
       return res.json(cache.creations.data);
     }
     const limit = req.query.limit || 20;
-    const data = await cultsQuery('{ creations(limit: ' + limit + ') { name url description likesCount viewsCount illustrations { imageUrl(size: SIZE_ILLUSTRATION_SQUARE_PREVIEW) } tags } }');
+    const data = await cultsQuery('{ creations(limit: ' + limit + ') { name url description likesCount viewsCount illustrations { imageUrl } tags } }');
     cache.creations = { data: data, ts: now };
     res.json(data);
   } catch (err) {
@@ -88,7 +88,7 @@ app.get('/health', (req, res) => {
 
 cron.schedule('*/30 * * * *', async () => {
   try {
-    const data = await cultsQuery('{ creations(limit: 20) { name url likesCount viewsCount illustrations { imageUrl(size: SIZE_ILLUSTRATION_SQUARE_PREVIEW) } } }');
+    const data = await cultsQuery('{ creations(limit: 20) { name url likesCount viewsCount illustrations { imageUrl } } }');
     cache.creations = { data: data, ts: Date.now() };
     console.log('Cache actualizado OK');
   } catch (e) {
